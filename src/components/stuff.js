@@ -6,8 +6,6 @@ export async function _try(func) {
     }
 }
 
-export let html = (s) => new DOMParser().parseFromString(s, "text/html").body.firstChild;
-
 function mapMarks(specItems, marks) {
     let marksIndex = 0;
     const result = [];

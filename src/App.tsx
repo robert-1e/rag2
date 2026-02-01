@@ -40,18 +40,15 @@ export function App() {
                 <div className="absolute top-[40%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-slate-800/50 blur-[100px]" />
             </div>
 
-            <main className="relative z-10 max-w-4xl mx-auto p-6 flex flex-col items-center">
+            <main className="relative z-10 mx-auto p-6 flex flex-col items-center">
                 <BrowserRouter>
                     <AppRoutes />
                 </BrowserRouter>
-
-                {/* Footer */}
-                <footer className="mt-20 text-center text-slate-600 text-sm font-light">
-                    <p>
-                        &copy; {new Date().getFullYear()} CMS-DB Enhanced. Designed for excellence.
-                    </p>
-                </footer>
             </main>
+            {/* Footer */}
+            <footer className="my-10 text-center text-slate-600 text-sm font-light">
+                <p>&copy; {new Date().getFullYear()} rag2</p>
+            </footer>
         </div>
     );
 }

@@ -152,7 +152,7 @@ export default function Dashboard() {
             </div>
 
             {/* List Section */}
-            <div className="w-full space-y-6">
+            <div className="max-w-4xl w-full space-y-6">
                 <div className="flex items-center justify-between px-2 mb-2">
                     <h2 className="text-xl font-serif text-white/90">Choose from localstorage</h2>
                     <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">
@@ -161,7 +161,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="space-y-4">
-                    {savedRags.map((rag, index) => (
+                    {savedRags.map((rag) => (
                         <GlassCard
                             key={rag.id}
                             hoverEffect={true}

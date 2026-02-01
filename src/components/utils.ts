@@ -8,11 +8,10 @@ export async function _try(func: Function) {
 
 export let html = (s: string) => new DOMParser().parseFromString(s, "text/html").body.firstChild;
 
-function mapMarks(specItems, marks) {
+function mapMarks(specItems: Spec, marks: any[]) {
     let marksIndex = 0;
-    const result = [];
 
-    function recurse(items) {
+    function recurse(items: any): any[][][] {
         const mappedItems = [];
         for (const item of items) {
             if (Array.isArray(item.points)) {
@@ -48,7 +47,10 @@ export const versionHandlers = {
                 typeof obj.student === "string" &&
                 Array.isArray(obj.marks) &&
                 // if theres at least 1 thing in the array with the right type its good enough
-                obj.marks.reduce((acc: boolean, v: number) => acc || [0, 1, 2, 3].includes(v), false)
+                obj.marks.reduce(
+                    (acc: boolean, v: number) => acc || [0, 1, 2, 3].includes(v),
+                    false,
+                )
             );
         },
         toHTML(obj) {
@@ -65,7 +67,7 @@ export const versionHandlers = {
                 marks: mapMarks(
                     specs["cs-ocr"],
                     // the .map fixes any errors with it, not that there should ever be any
-                    obj.marks.map((v) => ([1, 2, 3].includes(v) ? v : 0))
+                    obj.marks.map((v) => ([1, 2, 3].includes(v) ? v : 0)),
                 ),
                 lastModified: Date.now(),
             };
@@ -94,4 +96,3 @@ export const versionHandlers = {
     //     },
     // },
 };
-

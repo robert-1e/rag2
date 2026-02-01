@@ -1,21 +1,19 @@
 import React from "react";
 
-interface GlassCardProps {
+interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
-    className?: string;
     hoverEffect?: boolean;
-    onClick?: () => void;
 }
 
 export function GlassCard({
     children,
     className = "",
     hoverEffect = false,
-    onClick,
+    ...props
 }: GlassCardProps) {
     return (
         <div
-            onClick={onClick}
+            {...props}
             className={`
         relative overflow-hidden
         bg-white/5 backdrop-blur-md 

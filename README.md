@@ -13,3 +13,5 @@ Run something else to do something else (this is really just a quick project I w
 ## Other stuff
 
 This is probably a bit cooked (in terms of the stack)
+
+Initially I was using AI well, only to help, however this dissolved quite quickly so I kinda gave up, so essentially most of this is almost vibe-coded. I say "almost" because I do try to read and understand what the AI did, but if I see -8 +617 I am NOT readin allat
