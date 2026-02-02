@@ -6,7 +6,13 @@ export async function _try(func: Function) {
     }
 }
 
-export let html = (s: string) => new DOMParser().parseFromString(s, "text/html").body.firstChild;
+/**
+ * Converts a subject name to a filename format.
+ * e.g. "Computer Science" -> "computer_science"
+ */
+export function toSpecFilename(name: string): string {
+    return name.toLowerCase().replace(/ /g, "_");
+}
 
 function mapMarks(specItems: Spec, marks: any[]) {
     let marksIndex = 0;

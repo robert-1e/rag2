@@ -1,29 +1,32 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard.tsx";
 import Home from "./pages/Home.tsx";
 import RagViewer from "./pages/RagViewer.tsx";
 
-function AppRoutes() {
-    const selectedRag = { id: 0, name: "Name", date: "Yesterday" };
-
+function RagViewerRoute() {
+    const { ragName } = useParams<{ ragName: string }>();
     const navigate = useNavigate();
 
+    if (!ragName) {
+        navigate("/dashboard");
+        return null;
+    }
+
+    return (
+        <RagViewer
+            ragName={decodeURIComponent(ragName)}
+            onBack={() => navigate("/dashboard")}
+        />
+    );
+}
+
+function AppRoutes() {
     return (
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-                path="/rag/*"
-                element={
-                    <RagViewer
-                        ragId={selectedRag.id}
-                        ragName={selectedRag.name}
-                        lastModified={selectedRag.date}
-                        onBack={() => navigate("/")}
-                    />
-                }
-            />
+            <Route path="/rag/:ragName" element={<RagViewerRoute />} />
         </Routes>
     );
 }

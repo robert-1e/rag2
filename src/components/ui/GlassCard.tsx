@@ -3,11 +3,13 @@ import React from "react";
 interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
     hoverEffect?: boolean;
+    classNameForChildren?: string;
 }
 
 export function GlassCard({
     children,
     className = "",
+    classNameForChildren = "",
     hoverEffect = false,
     ...props
 }: GlassCardProps) {
@@ -24,7 +26,7 @@ export function GlassCard({
         ${className}
       `}>
             {/* Subtle noise texture or gradient overlay could go here if needed, keeping it clean for now */}
-            <div className="relative z-10">{children}</div>
+            <div className={`relative z-10 ${classNameForChildren}`}>{children}</div>
         </div>
     );
 }

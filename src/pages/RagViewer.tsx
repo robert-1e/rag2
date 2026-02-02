@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock, CheckCircle2, ChevronRight, ChevronDown } from "lucide-react";
 import { GlassCard } from "../components/ui/GlassCard";
 import { Button } from "../components/ui/Button";
+import { toSpecFilename } from "../components/utils";
+import { getRagMarks, saveRagMarks, cacheSpec, getCachedSpec, getRagByName } from "../lib/ragStorage";
 
 // Types for the spec structure from JSON
 interface SpecSubsection {
@@ -29,9 +32,7 @@ type SpecData = SpecComponent[];
 type ConfidenceMarks = ConfidenceLevel[][][][];
 
 interface RagDetailPageProps {
-    ragId: number;
     ragName: string;
-    lastModified: string;
     onBack: () => void;
 }
 
@@ -42,36 +43,42 @@ const confidenceColours = {
         text: "",
         border: "",
         glow: "",
+        gradient: "from-slate-600/30",
     },
     0: {
         bg: "bg-red-500",
         text: "text-red-500",
         border: "border-red-500/50",
         glow: "shadow-red-500/50",
+        gradient: "from-red-500/30",
     },
     1: {
         bg: "bg-orange-500",
         text: "text-orange-500",
         border: "border-orange-500/50",
         glow: "shadow-orange-500/50",
+        gradient: "from-orange-500/30",
     },
     2: {
         bg: "bg-amber-400",
         text: "text-amber-400",
         border: "border-amber-400/50",
         glow: "shadow-amber-400/50",
+        gradient: "from-amber-400/30",
     },
     3: {
         bg: "bg-lime-400",
         text: "text-lime-400",
         border: "border-lime-400/50",
         glow: "shadow-lime-400/50",
+        gradient: "from-lime-400/30",
     },
     4: {
         bg: "bg-green-500",
         text: "text-green-500",
         border: "border-green-500/50",
         glow: "shadow-green-500/50",
+        gradient: "from-green-500/30",
     },
 };
 function getConfColour(confidence: ConfidenceLevel) {
@@ -142,7 +149,7 @@ function Subsection({
                         return (
                             <GlassCard
                                 key={pointIdx}
-                                className="transition-all duration-300 [&:hover:not(:has(button:hover))]:bg-slate-700/50"
+                                className={`transition-all duration-300 [&:hover:not(:has(button:hover))]:bg-slate-700/50 bg-gradient-to-r ${getConfColour(confidence).gradient} to-transparent`}
                                 onClick={() => cycleConfidence()}
                                 onContextMenu={(e) => {
                                     e.preventDefault();
@@ -213,9 +220,11 @@ function countPoints(spec: SpecData, marks: ConfidenceMarks, filters: Set<Confid
     return { total, filtered };
 }
 
-export default function RagViewer({ ragName, lastModified, onBack }: RagDetailPageProps) {
+export default function RagViewer({ ragName, onBack }: RagDetailPageProps) {
+    const navigate = useNavigate();
     const [specData, setSpecData] = useState<SpecData | null>(null);
     const [marks, setMarks] = useState<ConfidenceMarks>([]);
+    const [lastModified, setLastModified] = useState<string>("");
     const [selectedFilters, setSelectedFilters] = useState<Set<ConfidenceLevel>>(
         new Set([null, 0, 1, 2, 3, 4]),
     );
@@ -223,35 +232,98 @@ export default function RagViewer({ ragName, lastModified, onBack }: RagDetailPa
     const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
     const [expandedSubsections, setExpandedSubsections] = useState<Set<string>>(new Set());
 
-    // Load spec data on mount
+    // Save marks to localStorage
+    const saveMarks = useCallback(() => {
+        if (marks.length > 0) {
+            saveRagMarks(ragName, marks);
+        }
+    }, [ragName, marks]);
+
+    // Load rag metadata and spec data on mount
     useEffect(() => {
-        fetch("/specs/ocr/computer_science.json")
-            .then((res) => res.json())
-            .then((data: SpecData) => {
-                setSpecData(data);
+        const rag = getRagByName(ragName);
+        if (!rag) {
+            // Rag not found, redirect to dashboard
+            navigate("/dashboard");
+            return;
+        }
+
+        setLastModified(rag.lastModified);
+
+        const specUrl = `/specs/${toSpecFilename(rag.examBoard)}/${toSpecFilename(rag.subject)}.json`;
+        
+        // Try to load cached spec first
+        const cachedSpec = getCachedSpec(rag.examBoard, rag.subject);
+        
+        const loadSpec = (data: SpecData) => {
+            setSpecData(data);
+            
+            // Try to load existing marks from localStorage
+            const savedMarks = getRagMarks(ragName);
+            if (savedMarks) {
+                setMarks(savedMarks);
+            } else {
                 setMarks(initializeMarks(data));
+            }
 
-                // Expand all sections by default
-                const allComponents = new Set<number>();
-                const allSections = new Set<string>();
-                const allSubsections = new Set<string>();
+            // Expand all sections by default
+            const allComponents = new Set<number>();
+            const allSections = new Set<string>();
+            const allSubsections = new Set<string>();
 
-                data.forEach((component, ci) => {
-                    allComponents.add(ci);
-                    component.items.forEach((section, si) => {
-                        allSections.add(`${ci}-${si}`);
-                        section.items.forEach((_, ssi) => {
-                            allSubsections.add(`${ci}-${si}-${ssi}`);
-                        });
+            data.forEach((component, ci) => {
+                allComponents.add(ci);
+                component.items.forEach((section, si) => {
+                    allSections.add(`${ci}-${si}`);
+                    section.items.forEach((_, ssi) => {
+                        allSubsections.add(`${ci}-${si}-${ssi}`);
                     });
                 });
+            });
 
-                setExpandedComponents(allComponents);
-                setExpandedSections(allSections);
-                setExpandedSubsections(allSubsections);
+            setExpandedComponents(allComponents);
+            setExpandedSections(allSections);
+            setExpandedSubsections(allSubsections);
+        };
+
+        if (cachedSpec) {
+            loadSpec(cachedSpec as SpecData);
+        }
+
+        // Always fetch fresh spec (will update if cached was stale)
+        fetch(specUrl)
+            .then((res) => {
+                if (!res.ok) throw new Error("Spec not found");
+                return res.json();
             })
-            .catch(console.error);
-    }, []);
+            .then((data: SpecData) => {
+                cacheSpec(rag.examBoard, rag.subject, data);
+                if (!cachedSpec) {
+                    loadSpec(data);
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+                if (!cachedSpec) {
+                    // No cached version and fetch failed - redirect immediately
+                    navigate("/dashboard");
+                }
+            });
+    }, [ragName, navigate]);
+
+    // Save on page unload
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            saveMarks();
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            // Also save when component unmounts
+            saveMarks();
+        };
+    }, [saveMarks]);
 
     const handleConfidenceChange = (
         componentIdx: number,
