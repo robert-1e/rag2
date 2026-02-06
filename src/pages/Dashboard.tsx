@@ -11,6 +11,7 @@ import {
     X,
     Trash2,
     Download,
+    Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +27,7 @@ import {
     deleteRag,
     getRagMarks,
     updateRagColor,
+    ragNameExists,
     type RagMetadata,
 } from "../lib/ragStorage";
 
@@ -253,6 +255,24 @@ async function openRagFilePicker() {
     hiddenInp.click();
 }
 
+// Available specs: exam board -> subjects
+const availableSpecs: { examBoard: string; label: string; subjects: { key: string; label: string }[] }[] = [
+    {
+        examBoard: "ocr",
+        label: "OCR",
+        subjects: [
+            { key: "computer_science", label: "Computer Science" },
+        ],
+    },
+    {
+        examBoard: "ocr_mei",
+        label: "OCR MEI",
+        subjects: [
+            { key: "maths", label: "Maths" },
+        ],
+    },
+];
+
 export default function Dashboard() {
     const navigate = useNavigate();
     const [savedRags, setSavedRags] = useState<RagMetadata[]>([]);
@@ -261,11 +281,53 @@ export default function Dashboard() {
     const [editError, setEditError] = useState<string | null>(null);
     const [deletingRag, setDeletingRag] = useState<string | null>(null);
     const [colorPickerRag, setColorPickerRag] = useState<string | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [createName, setCreateName] = useState("");
+    const [createBoard, setCreateBoard] = useState(availableSpecs[0].examBoard);
+    const [createSubject, setCreateSubject] = useState(availableSpecs[0].subjects[0].key);
+    const [createError, setCreateError] = useState<string | null>(null);
 
     // Load rags from localStorage on mount
     useEffect(() => {
         setSavedRags(getRagMetadata());
     }, []);
+
+    const openCreateModal = () => {
+        setCreateName("");
+        setCreateBoard(availableSpecs[0].examBoard);
+        setCreateSubject(availableSpecs[0].subjects[0].key);
+        setCreateError(null);
+        setShowCreateModal(true);
+    };
+
+    const closeCreateModal = () => {
+        setShowCreateModal(false);
+        setCreateError(null);
+    };
+
+    const handleBoardChange = (board: string) => {
+        setCreateBoard(board);
+        const boardSpec = availableSpecs.find((s) => s.examBoard === board);
+        if (boardSpec) {
+            setCreateSubject(boardSpec.subjects[0].key);
+        }
+    };
+
+    const handleCreate = () => {
+        const trimmed = createName.trim();
+        if (!trimmed) {
+            setCreateError("Name cannot be empty");
+            return;
+        }
+        if (ragNameExists(trimmed)) {
+            setCreateError("A rag with that name already exists");
+            return;
+        }
+        createRag(trimmed, createBoard, createSubject);
+        setSavedRags(getRagMetadata());
+        setShowCreateModal(false);
+        navigate(`/rag/${encodeURIComponent(trimmed)}`);
+    };
 
     const openColorPicker = (rag: RagMetadata, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -413,22 +475,29 @@ export default function Dashboard() {
                 </p>
             </div>
 
-            {/* Import Button */}
-            <div className="w-full max-w-md mx-auto mb-12 flex flex-col items-center space-y-8">
+            {/* Action Buttons */}
+            <div className="w-full max-w-md mx-auto mb-12 flex flex-col items-center space-y-4">
                 <Button
-                    onClick={openRagFilePicker}
+                    onClick={openCreateModal}
                     variant="primary"
                     className="w-full py-4 text-base shadow-indigo-500/20"
+                    icon={<Plus className="w-5 h-5" />}>
+                    Create new rag
+                </Button>
+                <Button
+                    onClick={openRagFilePicker}
+                    variant="ghost"
+                    className="w-full py-4 text-base"
                     icon={<Upload className="w-5 h-5" />}>
                     Import from file
                 </Button>
 
-                <div className="relative w-full flex items-center justify-center">
-                    <div className="absolute inset-0 flex items-center">
+                <div className="relative w-full flex items-center justify-center pt-4">
+                    <div className="absolute inset-0 flex items-center pt-4">
                         <div className="w-full border-t border-white/10"></div>
                     </div>
-                    <div className="relative bg-[#0f172a] px-4 text-sm text-slate-500 font-serif italic">
-                        or
+                    <div className="relative bg-[#0f172a] px-4 text-sm text-slate-500 font-serif italic mt-4">
+                        or choose existing
                     </div>
                 </div>
             </div>
@@ -656,6 +725,105 @@ export default function Dashboard() {
                                 className="w-full px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-medium transition-all mt-2">
                                 Close
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create New Rag Modal */}
+            {showCreateModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center"
+                    onClick={closeCreateModal}>
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+                    <div
+                        className="relative bg-slate-900/95 border border-white/10 rounded-2xl p-6 shadow-2xl max-w-sm w-full mx-4 animate-fade-in"
+                        onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-col space-y-5">
+                            <h3 className="text-lg font-medium text-white text-center">Create New Rag</h3>
+
+                            {/* Name */}
+                            <div className="space-y-1.5">
+                                <label className="text-sm text-slate-400">Name</label>
+                                <input
+                                    type="text"
+                                    value={createName}
+                                    onChange={(e) => {
+                                        setCreateName(e.target.value);
+                                        setCreateError(null);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleCreate();
+                                        if (e.key === "Escape") closeCreateModal();
+                                    }}
+                                    autoFocus
+                                    placeholder="e.g. My Computer Science RAG"
+                                    className={`w-full bg-slate-800/50 border rounded-xl px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none transition-colors ${
+                                        createError
+                                            ? "border-red-500"
+                                            : "border-white/10 focus:border-indigo-500"
+                                    }`}
+                                />
+                                {createError && (
+                                    <p className="text-xs text-red-400">{createError}</p>
+                                )}
+                            </div>
+
+                            {/* Exam Board */}
+                            <div className="space-y-1.5">
+                                <label className="text-sm text-slate-400">Exam Board</label>
+                                <div className="flex gap-2">
+                                    {availableSpecs.map((spec) => (
+                                        <button
+                                            key={spec.examBoard}
+                                            onClick={() => handleBoardChange(spec.examBoard)}
+                                            className={`flex-1 px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
+                                                createBoard === spec.examBoard
+                                                    ? "bg-indigo-500/20 border-indigo-500/50 text-indigo-300"
+                                                    : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
+                                            }`}>
+                                            {spec.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Subject */}
+                            <div className="space-y-1.5">
+                                <label className="text-sm text-slate-400">Subject</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {availableSpecs
+                                        .find((s) => s.examBoard === createBoard)
+                                        ?.subjects.map((subj) => (
+                                            <button
+                                                key={subj.key}
+                                                onClick={() => setCreateSubject(subj.key)}
+                                                className={`px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
+                                                    createSubject === subj.key
+                                                        ? "bg-indigo-500/20 border-indigo-500/50 text-indigo-300"
+                                                        : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
+                                                }`}>
+                                                {subj.label}
+                                            </button>
+                                        ))}
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-3 pt-2">
+                                <button
+                                    onClick={closeCreateModal}
+                                    className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-medium transition-all">
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleCreate}
+                                    className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 hover:text-indigo-200 font-medium transition-all flex items-center justify-center gap-2">
+                                    <Plus className="w-4 h-4" />
+                                    Create
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
