@@ -1,0 +1,263 @@
+[
+    {
+        "name": "Pure Mathematics",
+        "items": [
+            {
+                "name": "Proof",
+                "items": [
+                    {
+                        "name": "Mp1 - Structure of mathematical proof",
+                        "points": [
+                            "Understand and be able to use the structure of mathematical proof.",
+                            "Use methods of proof including proof by deduction and exhaustion.",
+                            "Proceed logically from assumptions to conclusions."
+                        ]
+                    },
+                    {
+                        "name": "p2 - Disproof by counterexample",
+                        "points": [
+                            "Be able to disprove a conjecture by counterexample."
+                        ]
+                    },
+                    {
+                        "name": "p3 - Proof by contradiction",
+                        "points": [
+                            "Understand and be able to use proof by contradiction, including proof of irrationality of √2 and the infinity of primes.",
+                            "Application to unfamiliar proofs included."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Algebra",
+                "items": [
+                    {
+                        "name": "Ma1 - Vocabulary and notation",
+                        "points": [
+                            "Know and be able to use vocabulary and notation appropriate to the subject."
+                        ]
+                    },
+                    {
+                        "name": "Ma7 - Linear inequalities",
+                        "points": [
+                            "Solve linear inequalities; interpret solutions graphically.",
+                            "Examples include y > 2x + 3."
+                        ]
+                    },
+                    {
+                        "name": "Quadratic inequalities",
+                        "points": [
+                            "Solve quadratic inequalities; interpret graphically.",
+                            "E.g., x² − 4x + 3 < 0."
+                        ]
+                    },
+                    {
+                        "name": "a14 - Proportional relationships",
+                        "points": [
+                            "Understand and use proportional relationships and graphs.",
+                            "Relationships that are directly or inversely proportional to a power or root."
+                        ]
+                    },
+                    {
+                        "name": "a15 - Partial fractions",
+                        "points": [
+                            "Express algebraic fractions as partial fractions.",
+                            "Includes fractions with constant or linear numerators/denominators, quadratic or cubic denominators."
+                        ]
+                    },
+                    {
+                        "name": "a16 - Rational expressions",
+                        "points": [
+                            "Simplify rational expressions—factorising, cancelling, algebraic division.",
+                            "Includes division by non-linear expressions, solving polynomial equations of degree > 4."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Functions",
+                "items": [
+                    {
+                        "name": "f3 - Definition of a function",
+                        "points": [
+                            "Understand the definition of a function, vocabulary, notation.",
+                            "Basic understanding of functions and their properties.",
+                            "Notation: f(x), domain, range."
+                        ]
+                    },
+                    {
+                        "name": "f4 - Composition of functions",
+                        "points": [
+                            "Understand and use composition of functions, including restrictions.",
+                            "Notation: (f∘g)(x)."
+                        ]
+                    },
+                    {
+                        "name": "f5 - Inverse functions",
+                        "points": [
+                            "Understand inverse functions; their graphs, existence conditions, derivation.",
+                            "Notation: f⁻¹(x)."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Graphs",
+                "items": [
+                    {
+                        "name": "MC1 - Graphs of functions",
+                        "points": [
+                            "Understand and sketch graphs of functions and transformations.",
+                            "Includes intercepts, symmetry, asymptotes, transformations.",
+                            "Notation: Coordinates (x, y)."
+                        ]
+                    },
+                    {
+                        "name": "C2 - Completing the square",
+                        "points": [
+                            "Use completing the square to find symmetry and turning points of quadratics.",
+                            "y = ax² + bx + c."
+                        ]
+                    },
+                    {
+                        "name": "MC7 - Graph transformations",
+                        "points": [
+                            "Sketch graphs of transformed functions, e.g., y = af(x), y = f(x + a).",
+                            "Describe how transformations affect the graph."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Calculus",
+                "items": [
+                    {
+                        "name": "Mc1 - Gradient of a curve",
+                        "points": [
+                            "Recognize the gradient of a curve equals the gradient of the tangent.",
+                            "Limit of the gradient of the secant as the points approach.",
+                            "Notation: dy/dx, f'(x)."
+                        ]
+                    },
+                    {
+                        "name": "c3 - Applications of derivatives",
+                        "points": [
+                            "Use derivatives to find tangents, normals, stationary points, optimize.",
+                            "Related to rates of change, maxima and minima.",
+                            "Notation: dy/dx, f'(x)."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Differential Equations",
+                "items": [
+                    {
+                        "name": "c31 - Formulating differential equations",
+                        "points": [
+                            "Formulate first-order differential equations from real-world rates of change.",
+                            "Contexts include kinematics, population, demand.",
+                            "Notation: dy/dx."
+                        ]
+                    },
+                    {
+                        "name": "c32 - Solving differential equations",
+                        "points": [
+                            "Solve first-order differential equations analytically by separation of variables.",
+                            "Factor if necessary."
+                        ]
+                    },
+                    {
+                        "name": "c33 - Interpreting solutions",
+                        "points": [
+                            "Interpret solutions in problem contexts, understand limitations of models.",
+                            "Limitations include assumptions in equations."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Additional Pure Topics",
+                "items": [
+                    {
+                        "name": "Sequences and Series",
+                        "points": []
+                    },
+                    {
+                        "name": "Trigonometry",
+                        "points": []
+                    },
+                    {
+                        "name": "Vectors",
+                        "points": []
+                    },
+                    {
+                        "name": "Exponentials and Logarithms",
+                        "points": []
+                    },
+                    {
+                        "name": "Geometric Curves",
+                        "points": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Statistics Minor",
+        "items": [
+            {
+                "name": "Data Presentation and Interpretation",
+                "items": []
+            },
+            {
+                "name": "Statistical Hypothesis Testing",
+                "items": [
+                    {
+                        "name": "MH1 - Hypothesis testing process",
+                        "points": [
+                            "Understand the hypothesis testing process and associated language.",
+                            "Notation: H₀, H₁, p-value, significance level."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Probability Distributions",
+                "items": []
+            }
+        ]
+    },
+    {
+        "name": "Mechanics Minor",
+        "items": [
+            {
+                "name": "Models and Quantities",
+                "items": [
+                    {
+                        "name": "Mp31 - Simplifying assumptions",
+                        "points": [
+                            "Know the language used to describe simplifying assumptions in mechanics."
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Kinematics",
+                "items": []
+            },
+            {
+                "name": "Forces and Newton's Laws",
+                "items": []
+            },
+            {
+                "name": "Projectiles",
+                "items": []
+            },
+            {
+                "name": "Modeling Techniques",
+                "items": []
+            }
+        ]
+    }
+]

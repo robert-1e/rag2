@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock, CheckCircle2, ChevronRight, ChevronDown } from "lucide-react";
+
 import { GlassCard } from "../components/ui/GlassCard";
 import { Button } from "../components/ui/Button";
 import { toSpecFilename } from "../components/utils";
-import { getRagMarks, saveRagMarks, cacheSpec, getCachedSpec, getRagByName } from "../lib/ragStorage";
+import {
+    getRagMarks,
+    saveRagMarks,
+    cacheSpec,
+    getCachedSpec,
+    getRagByName,
+} from "../lib/ragStorage";
 
 // Types for the spec structure from JSON
 interface SpecSubsection {
@@ -109,9 +116,7 @@ function Subsection({
     const points = subsection.points ?? [];
     const hasVisiblePoints = points.some((_, pi) => isPointVisible(pi));
 
-    if (!hasVisiblePoints && points.length > 0) {
-        return null;
-    }
+    if (!hasVisiblePoints && points.length > 0) return null;
 
     return (
         <div key={subsectionKey} className="space-y-1">
@@ -251,13 +256,13 @@ export default function RagViewer({ ragName, onBack }: RagDetailPageProps) {
         setLastModified(rag.lastModified);
 
         const specUrl = `/specs/${toSpecFilename(rag.examBoard)}/${toSpecFilename(rag.subject)}.json`;
-        
+
         // Try to load cached spec first
         const cachedSpec = getCachedSpec(rag.examBoard, rag.subject);
-        
+
         const loadSpec = (data: SpecData) => {
             setSpecData(data);
-            
+
             // Try to load existing marks from localStorage
             const savedMarks = getRagMarks(ragName);
             if (savedMarks) {
@@ -407,14 +412,17 @@ export default function RagViewer({ ragName, onBack }: RagDetailPageProps) {
         sectionIdx: number,
         subsectionIdx: number,
     ) => {
-        const points = specData?.[componentIdx]?.items[sectionIdx]?.items[subsectionIdx]?.points ?? [];
+        const points =
+            specData?.[componentIdx]?.items[sectionIdx]?.items[subsectionIdx]?.points ?? [];
         return points.some((_, pi) => isPointVisible(componentIdx, sectionIdx, subsectionIdx, pi));
     };
 
     // Check if a section has any visible subsections
     const hasVisibleSubsections = (componentIdx: number, sectionIdx: number) => {
         const subsections = specData?.[componentIdx]?.items[sectionIdx]?.items ?? [];
-        return subsections.some((_, ssi) => hasVisiblePointsInSubsection(componentIdx, sectionIdx, ssi));
+        return subsections.some((_, ssi) =>
+            hasVisiblePointsInSubsection(componentIdx, sectionIdx, ssi),
+        );
     };
 
     // Check if a component has any visible sections
@@ -483,7 +491,7 @@ export default function RagViewer({ ragName, onBack }: RagDetailPageProps) {
 
                 <div className="">
                     {/* Components (top level sections) */}
-                    {pointCounts.filtered === 0 ? (
+                    {pointCounts.filtered === 0 ?
                         <div className="flex flex-col items-center justify-center py-16 text-center">
                             <p className="text-slate-400 text-sm">
                                 No points match the current filter.
@@ -494,115 +502,125 @@ export default function RagViewer({ ragName, onBack }: RagDetailPageProps) {
                                 Reset filters
                             </button>
                         </div>
-                    ) : (
-                        specData.map((component, componentIdx) => {
-                        if (!hasVisibleSections(componentIdx)) {
-                            return null;
-                        }
+                    :   specData.map((component, componentIdx) => {
+                            if (!hasVisibleSections(componentIdx)) {
+                                return null;
+                            }
 
-                        return (
-                            <div key={componentIdx} className="space-y-2">
-                                {/* Component Header */}
-                                <button
-                                    onClick={() => toggleComponent(componentIdx)}
-                                    className="w-full flex items-center gap-3 p-4 hover:bg-slate-700/10 rounded-xl transition-all">
-                                    {expandedComponents.has(componentIdx) ?
-                                        <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                                    :   <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />}
-                                    <span className="text-xl font-semibold text-white">
-                                        {component.name}
-                                    </span>
-                                </button>
+                            return (
+                                <div key={componentIdx} className="space-y-2">
+                                    {/* Component Header */}
+                                    <button
+                                        onClick={() => toggleComponent(componentIdx)}
+                                        className="w-full flex items-center gap-3 p-4 hover:bg-slate-700/10 rounded-xl transition-all">
+                                        {expandedComponents.has(componentIdx) ?
+                                            <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                                        :   <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                                        }
+                                        <span className="text-xl font-semibold text-white">
+                                            {component.name}
+                                        </span>
+                                    </button>
 
-                                {/* Sections within Component */}
-                                {expandedComponents.has(componentIdx) && (
-                                    <div className="ml-[26px] pl-1 space-y-2 border-l border-white/20">
-                                        {component.items.map((section, sectionIdx) => {
-                                            const sectionKey = `${componentIdx}-${sectionIdx}`;
+                                    {/* Sections within Component */}
+                                    {expandedComponents.has(componentIdx) && (
+                                        <div className="ml-[26px] pl-1 space-y-2 border-l border-white/20">
+                                            {component.items.map((section, sectionIdx) => {
+                                                const sectionKey = `${componentIdx}-${sectionIdx}`;
 
-                                            if (!hasVisibleSubsections(componentIdx, sectionIdx)) {
-                                                return null;
-                                            }
+                                                if (
+                                                    !hasVisibleSubsections(componentIdx, sectionIdx)
+                                                ) {
+                                                    return null;
+                                                }
 
-                                            return (
-                                                <div key={sectionKey} className="space-y-2">
-                                                    {/* Section Header */}
-                                                    <button
-                                                        onClick={() => toggleSection(sectionKey)}
-                                                        className="w-full flex items-center gap-3 p-3 hover:bg-slate-700/10 rounded-lg transition-all">
-                                                        {expandedSections.has(sectionKey) ?
-                                                            <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                                                        :   <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                                                        }
-                                                        <span className="text-base font-medium text-slate-200 text-left">
-                                                            {section.name}
-                                                        </span>
-                                                    </button>
+                                                return (
+                                                    <div key={sectionKey} className="space-y-2">
+                                                        {/* Section Header */}
+                                                        <button
+                                                            onClick={() =>
+                                                                toggleSection(sectionKey)
+                                                            }
+                                                            className="w-full flex items-center gap-3 p-3 hover:bg-slate-700/10 rounded-lg transition-all">
+                                                            {expandedSections.has(sectionKey) ?
+                                                                <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                                                            :   <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                                                            }
+                                                            <span className="text-base font-medium text-slate-200 text-left">
+                                                                {section.name}
+                                                            </span>
+                                                        </button>
 
-                                                    {/* Subsections within Section */}
-                                                    {expandedSections.has(sectionKey) && (
-                                                        <div className="ml-[20px] pl-1 space-y-2 border-l border-white/20">
-                                                            {section.items.map(
-                                                                (subsection, subsectionIdx) => {
-                                                                    const subsectionKey = `${componentIdx}-${sectionIdx}-${subsectionIdx}`;
+                                                        {/* Subsections within Section */}
+                                                        {expandedSections.has(sectionKey) && (
+                                                            <div className="ml-[20px] pl-1 space-y-2 border-l border-white/20">
+                                                                {section.items.map(
+                                                                    (subsection, subsectionIdx) => {
+                                                                        const subsectionKey = `${componentIdx}-${sectionIdx}-${subsectionIdx}`;
 
-                                                                    return (
-                                                                        <Subsection
-                                                                            key={subsectionKey}
-                                                                            subsection={subsection}
-                                                                            subsectionKey={
-                                                                                subsectionKey
-                                                                            }
-                                                                            isExpanded={expandedSubsections.has(
-                                                                                subsectionKey,
-                                                                            )}
-                                                                            onToggle={() =>
-                                                                                toggleSubsection(
+                                                                        return (
+                                                                            <Subsection
+                                                                                key={subsectionKey}
+                                                                                subsection={
+                                                                                    subsection
+                                                                                }
+                                                                                subsectionKey={
+                                                                                    subsectionKey
+                                                                                }
+                                                                                isExpanded={expandedSubsections.has(
                                                                                     subsectionKey,
-                                                                                )
-                                                                            }
-                                                                            pointMarks={
-                                                                                marks[componentIdx]?.[
-                                                                                    sectionIdx
-                                                                                ]?.[subsectionIdx] ?? []
-                                                                            }
-                                                                            onConfidenceChange={(
-                                                                                pointIdx,
-                                                                                level,
-                                                                            ) =>
-                                                                                handleConfidenceChange(
-                                                                                    componentIdx,
-                                                                                    sectionIdx,
-                                                                                    subsectionIdx,
+                                                                                )}
+                                                                                onToggle={() =>
+                                                                                    toggleSubsection(
+                                                                                        subsectionKey,
+                                                                                    )
+                                                                                }
+                                                                                pointMarks={
+                                                                                    marks[
+                                                                                        componentIdx
+                                                                                    ]?.[
+                                                                                        sectionIdx
+                                                                                    ]?.[
+                                                                                        subsectionIdx
+                                                                                    ] ?? []
+                                                                                }
+                                                                                onConfidenceChange={(
                                                                                     pointIdx,
                                                                                     level,
-                                                                                )
-                                                                            }
-                                                                            isPointVisible={(
-                                                                                pointIdx,
-                                                                            ) =>
-                                                                                isPointVisible(
-                                                                                    componentIdx,
-                                                                                    sectionIdx,
-                                                                                    subsectionIdx,
+                                                                                ) =>
+                                                                                    handleConfidenceChange(
+                                                                                        componentIdx,
+                                                                                        sectionIdx,
+                                                                                        subsectionIdx,
+                                                                                        pointIdx,
+                                                                                        level,
+                                                                                    )
+                                                                                }
+                                                                                isPointVisible={(
                                                                                     pointIdx,
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                    );
-                                                                },
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })
-                    )}
+                                                                                ) =>
+                                                                                    isPointVisible(
+                                                                                        componentIdx,
+                                                                                        sectionIdx,
+                                                                                        subsectionIdx,
+                                                                                        pointIdx,
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        );
+                                                                    },
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
+                    }
                 </div>
             </div>
         </div>
