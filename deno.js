@@ -1,25 +1,25 @@
 import { serveDir } from "jsr:@std/http/file-server";
 
-const exists = async (filename) => {
-    try {
-        await Deno.stat(filename);
-        return true;
-    } catch (error) {
-        if (error instanceof Deno.errors.NotFound) {
-            return false;
-        }
-        throw error; // Re-throw unexpected errors
-    }
-};
+// const exists = async (filename) => {
+//     try {
+//         await Deno.stat(filename);
+//         return true;
+//     } catch (error) {
+//         if (error instanceof Deno.errors.NotFound) {
+//             return false;
+//         }
+//         throw error; // Re-throw unexpected errors
+//     }
+// };
 
 Deno.serve(async (req) => {
     const url = new URL(req.url);
     const pathname = url.pathname;
     const filePath = `./dist${pathname}`;
 
-    if (await exists(filePath)) {
-        return serveDir(req, { fsRoot: "./dist" });
-    }
+    // if (await exists(filePath)) {
+    //     return serveDir(req, { fsRoot: "./dist" });
+    // }
 
     // Serve index.html for all other routes (SPA fallback)
     return serveDir(req, {
